@@ -19,21 +19,24 @@
 | CQRS / use-cases | **MediatR** (`GetWeatherQuery`) |
 | HTTP | `Power.Weather.Providers.WeatherDotCom` (`Providers:WeatherDotCom` в appsettings) |
 | Конфиг | API key и координаты Москвы в `appsettings` / User Secrets |
-| Тесты | xUnit: `Power.Weather.Unit.Tests`, `Power.Weather.Integrity.Tests` |
+| Тесты | xUnit по слоям: Domain/Application/Infrastructure/Providers + Integrity |
 | Дизайн | Один экран, спокойный weather-дашборд: текущее → почасовой → 3 дня; loading / error + retry |
 
 ### Структура solution
 
 ```
 src/
-  Power.Weather.Domain/                    # модели, порты, domain services
-  Power.Weather.Application/               # MediatR (GetWeatherQuery), DI
-  Power.Weather.Infrastructure/            # композиция DI, выбор провайдера
-  Power.Weather.Providers.WeatherDotCom/   # адаптер weatherapi.com
-  Power.Weather.Web/                       # Blazor Server UI
+  Power.Weather.Domain/
+  Power.Weather.Application/
+  Power.Weather.Infrastructure/
+  Power.Weather.Providers.WeatherDotCom/
+  Power.Weather.Web/
 tests/
-  Power.Weather.Unit.Tests/                # unit (xUnit)
-  Power.Weather.Integrity.Tests/           # integrity / WebApplicationFactory (xUnit)
+  Power.Weather.Domain.Tests/
+  Power.Weather.Application.Tests/
+  Power.Weather.Infrastructure.Tests/
+  Power.Weather.Providers.WeatherDotCom.Tests/
+  Power.Weather.Integrity.Tests/
 ```
 
 ### API-стратегия

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using Power.Weather.Domain.Weather;
 using Power.Weather.Providers.WeatherDotCom;
 
-namespace Power.Weather.Unit.Tests.Providers;
+namespace Power.Weather.Providers.WeatherDotCom.Tests;
 
 public class WeatherDotComClientTests
 {

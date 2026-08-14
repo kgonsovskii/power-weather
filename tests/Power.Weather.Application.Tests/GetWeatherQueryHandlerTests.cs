@@ -5,8 +5,9 @@ using Power.Weather.Application.Options;
 using Power.Weather.Application.Weather;
 using Power.Weather.Domain.Services;
 using Power.Weather.Domain.Weather;
+using MsOptions = Microsoft.Extensions.Options.Options;
 
-namespace Power.Weather.Unit.Tests.Application;
+namespace Power.Weather.Application.Tests;
 
 public class GetWeatherQueryHandlerTests
 {
@@ -19,7 +20,7 @@ public class GetWeatherQueryHandlerTests
         provider.GetAsync(Arg.Any<GeoLocation>(), Arg.Any<CancellationToken>())
             .Returns(EmptySnapshot());
 
-        var options = Options.Create(MoscowOptions());
+        var options = MsOptions.Create(MoscowOptions());
         var timeProvider = new FakeTimeProvider(new DateTimeOffset(2024, 1, 15, 12, 0, 0, TimeSpan.Zero));
         var handler = new GetWeatherQueryHandler(provider, options, timeProvider, new HourlyForecastSelector());
 
@@ -51,7 +52,7 @@ public class GetWeatherQueryHandlerTests
                 ],
                 []));
 
-        var options = Options.Create(MoscowOptions());
+        var options = MsOptions.Create(MoscowOptions());
 
         // 15:30 Moscow = 12:30 UTC
         var timeProvider = new FakeTimeProvider(new DateTimeOffset(2024, 1, 15, 12, 30, 0, TimeSpan.Zero));

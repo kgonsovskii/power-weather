@@ -11,7 +11,7 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.Configure<WeatherDotComOptions>(configuration.GetSection(WeatherDotComOptions.SectionName));
-        services.AddHttpClient<IWeatherProvider, WeatherDotComClient>();
+        services.AddHttpClient<WeatherDotComClient>();
         return services;
     }
 }

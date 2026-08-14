@@ -2,7 +2,7 @@ using Microsoft.Extensions.Time.Testing;
 using Power.Weather.Domain.Services;
 using Power.Weather.Domain.Weather;
 
-namespace Power.Weather.Unit.Tests.Domain;
+namespace Power.Weather.Domain.Tests;
 
 public class HourlyForecastSelectorTests
 {
