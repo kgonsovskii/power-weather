@@ -10,18 +10,26 @@
     }
     else
     {
-        <div class="hourly" tabindex="0">
-            @foreach (var hour in Hours)
+        <div class="hourly-groups">
+            @foreach (var group in Groups)
             {
-                <article class="hourly__item">
-                    <p class="hourly__time">@FormatHour(hour.Time)</p>
-                    @if (!string.IsNullOrWhiteSpace(hour.Condition.IconUrl))
-                    {
-                        <img src="@hour.Condition.IconUrl" alt="@hour.Condition.Text" width="40" height="40" />
-                    }
-                    <p class="hourly__temp">@hour.TemperatureC.ToString("0")°</p>
-                    <p class="hourly__rain">@hour.ChanceOfRainPercent%</p>
-                </article>
+                <div class="hourly-group hourly-group--@group.CssSuffix">
+                    <h3 class="hourly-group__title">@group.Title</h3>
+                    <div class="hourly" tabindex="0">
+                        @foreach (var hour in group.Hours)
+                        {
+                            <article class="hourly__item">
+                                <p class="hourly__time">@hour.Time.ToString("HH:mm")</p>
+                                @if (!string.IsNullOrWhiteSpace(hour.Condition.IconUrl))
+                                {
+                                    <img src="@hour.Condition.IconUrl" alt="@hour.Condition.Text" width="40" height="40" />
+                                }
+                                <p class="hourly__temp">@hour.TemperatureC.ToString("0")°</p>
+                                <p class="hourly__rain">@hour.ChanceOfRainPercent%</p>
+                            </article>
+                        }
+                    </div>
+                </div>
             }
         </div>
     }
@@ -31,8 +39,37 @@
     [Parameter, EditorRequired]
     public IReadOnlyList<HourlyForecast> Hours { get; set; } = [];
 
-    private static string FormatHour(DateTimeOffset time)
-        => time.Hour == 0 && time.Minute == 0
-            ? time.ToString("dd.MM HH:mm")
-            : time.ToString("HH:mm");
+    private IReadOnlyList<HourlyGroup> Groups { get; set; } = [];
+
+    protected override void OnParametersSet()
+    {
+        Groups = BuildGroups(Hours);
+    }
+
+    private static IReadOnlyList<HourlyGroup> BuildGroups(IReadOnlyList<HourlyForecast> hours)
+    {
+        if (hours.Count == 0)
+        {
+            return [];
+        }
+
+        var byDate = hours
+            .GroupBy(h => h.Time.Date)
+            .OrderBy(g => g.Key)
+            .ToList();
+
+        var result = new List<HourlyGroup>(byDate.Count);
+        for (var i = 0; i < byDate.Count; i++)
+        {
+            var day = byDate[i];
+            result.Add(new HourlyGroup(
+                Title: i == 0 ? "Сегодня" : i == 1 ? "Завтра" : day.Key.ToString("dd.MM"),
+                CssSuffix: i == 0 ? "today" : "tomorrow",
+                Hours: day.ToList()));
+        }
+
+        return result;
+    }
+
+    private sealed record HourlyGroup(string Title, string CssSuffix, IReadOnlyList<HourlyForecast> Hours);
 }

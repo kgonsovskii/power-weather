@@ -56,6 +56,11 @@ public sealed class WeatherDotComClient(
                     $"{location.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture)}" +
                     $"&days={_options.ForecastDays}";
 
+        if (!string.IsNullOrWhiteSpace(_options.Language))
+        {
+            query += $"&lang={Uri.EscapeDataString(_options.Language)}";
+        }
+
         var builder = new UriBuilder(endpoint) { Query = query };
         return builder.Uri;
     }

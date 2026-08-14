@@ -18,6 +18,7 @@ public class WeatherDotComClientTests
         {
             ApiKey = "test-key",
             ForecastDays = 3,
+            Language = "ru",
             Urls = new Dictionary<string, string>
             {
                 [WeatherDotComUrlKeys.Base] = "https://api.weatherapi.com/v1/",
@@ -39,6 +40,7 @@ public class WeatherDotComClientTests
         Assert.Contains("forecast.json", handler.LastRequestUri!.AbsolutePath);
         Assert.Contains("key=test-key", handler.LastRequestUri.Query);
         Assert.Contains("days=3", handler.LastRequestUri.Query);
+        Assert.Contains("lang=ru", handler.LastRequestUri.Query);
     }
 
     [Fact]

@@ -227,15 +227,47 @@ h1:focus {
     font-size: 0.92rem;
 }
 
+.hourly-groups {
+    display: grid;
+    gap: 0.85rem;
+    margin-top: 1rem;
+}
+
+.hourly-group {
+    border-radius: 1rem;
+    padding: 0.75rem 0.7rem 0.8rem;
+    border: 1px solid var(--line);
+}
+
+.hourly-group--today {
+    background: rgba(125, 211, 252, 0.22);
+}
+
+.hourly-group--tomorrow {
+    background: rgba(148, 163, 184, 0.2);
+}
+
+.hourly-group__title {
+    margin: 0 0 0.55rem 0.15rem;
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink);
+}
+
 .hourly {
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: minmax(4.6rem, 1fr);
     gap: 0.65rem;
-    margin-top: 1rem;
     overflow-x: auto;
-    padding-bottom: 0.35rem;
     scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.hourly::-webkit-scrollbar {
+    display: none;
 }
 
 .hourly__item {
@@ -243,7 +275,7 @@ h1:focus {
     text-align: center;
     padding: 0.7rem 0.35rem;
     border-radius: 0.9rem;
-    background: rgba(255, 255, 255, 0.55);
+    background: rgba(255, 255, 255, 0.62);
     border: 1px solid var(--line);
 }
 
