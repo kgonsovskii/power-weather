@@ -25,7 +25,7 @@ public class CachingWeatherProviderTests
 
         Assert.Same(snapshot, first);
         Assert.Same(snapshot, second);
-        await inner.Received(1).GetAsync(location, Arg.Any<CancellationToken>());
+        await inner.Received(1).GetAsync(location, false, Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class CachingWeatherProviderTests
         var timeProvider = new FakeTimeProvider(new DateTimeOffset(2024, 1, 15, 12, 0, 0, TimeSpan.Zero));
         var (sut, inner, location, firstSnapshot) = CreateSut(timeProvider);
         var secondSnapshot = EmptySnapshot(location, temperatureC: -3);
-        inner.GetAsync(location, Arg.Any<CancellationToken>())
+        inner.GetAsync(location, Arg.Any<bool>(), Arg.Any<CancellationToken>())
             .Returns(firstSnapshot, secondSnapshot);
 
         var first = await sut.GetAsync(location);
@@ -43,7 +43,24 @@ public class CachingWeatherProviderTests
 
         Assert.Same(firstSnapshot, first);
         Assert.Same(secondSnapshot, second);
-        await inner.Received(2).GetAsync(location, Arg.Any<CancellationToken>());
+        await inner.Received(2).GetAsync(location, false, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task ItShouldBypassCacheWhenForceRefresh()
+    {
+        var timeProvider = new FakeTimeProvider(new DateTimeOffset(2024, 1, 15, 12, 0, 0, TimeSpan.Zero));
+        var (sut, inner, location, firstSnapshot) = CreateSut(timeProvider);
+        var secondSnapshot = EmptySnapshot(location, temperatureC: -3);
+        inner.GetAsync(location, Arg.Any<bool>(), Arg.Any<CancellationToken>())
+            .Returns(firstSnapshot, secondSnapshot);
+
+        var first = await sut.GetAsync(location);
+        var second = await sut.GetAsync(location, forceRefresh: true);
+
+        Assert.Same(firstSnapshot, first);
+        Assert.Same(secondSnapshot, second);
+        await inner.Received(2).GetAsync(location, false, Arg.Any<CancellationToken>());
     }
 
     private static (
@@ -55,7 +72,7 @@ public class CachingWeatherProviderTests
         var location = new GeoLocation(55.7558, 37.6173, "Москва");
         var snapshot = EmptySnapshot(location);
         var inner = Substitute.For<IWeatherProvider>();
-        inner.GetAsync(location, Arg.Any<CancellationToken>()).Returns(snapshot);
+        inner.GetAsync(location, Arg.Any<bool>(), Arg.Any<CancellationToken>()).Returns(snapshot);
 
         var cache = new MemoryCache(new MemoryCacheOptions
         {
@@ -63,7 +80,7 @@ public class CachingWeatherProviderTests
             ExpirationScanFrequency = TimeSpan.FromMilliseconds(1)
         });
         var options = Options.Create(new WeatherCacheOptions { Duration = CacheDuration });
-        var sut = new CachingWeatherProvider(inner, cache, options, NullLogger<CachingWeatherProvider>.Instance);
+        var sut = new CachingWeatherProvider(inner, cache, options, NullLogger<CachingWeatherProvider>.Instance, NullWeatherLoadProgress.Instance);
 
         return (sut, inner, location, snapshot);
     }

@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using Power.Weather.Domain.Weather;
@@ -8,7 +7,8 @@ namespace Power.Weather.Providers.WeatherDotCom;
 
 public sealed class WeatherDotComClient(
     HttpClient httpClient,
-    IOptions<WeatherDotComOptions> options) : IWeatherProvider
+    IOptions<WeatherDotComOptions> options,
+    IWeatherLoadProgress? progress = null) : IWeatherProvider
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -17,9 +17,14 @@ public sealed class WeatherDotComClient(
 
     private readonly HttpClient _httpClient = httpClient;
     private readonly WeatherDotComOptions _options = options.Value;
+    private readonly IWeatherLoadProgress _progress = progress ?? NullWeatherLoadProgress.Instance;
 
-    public async Task<WeatherSnapshot> GetAsync(GeoLocation location, CancellationToken cancellationToken = default)
+    public async Task<WeatherSnapshot> GetAsync(
+        GeoLocation location,
+        bool forceRefresh = false,
+        CancellationToken cancellationToken = default)
     {
+        _ = forceRefresh;
         ArgumentNullException.ThrowIfNull(location);
 
         if (string.IsNullOrWhiteSpace(_options.ApiKey))
@@ -28,7 +33,17 @@ public sealed class WeatherDotComClient(
         }
 
         var forecastUri = BuildForecastUri(location);
-        using var response = await _httpClient.GetAsync(forecastUri, cancellationToken).ConfigureAwait(false);
+
+        _progress.Report(new WeatherLoadProgressUpdate(
+            WeatherLoadPhase.Connecting,
+            "Подключаемся к сервису погоды…",
+            0.05,
+            0,
+            null));
+
+        using var response = await _httpClient
+            .GetAsync(forecastUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+            .ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -37,7 +52,19 @@ public sealed class WeatherDotComClient(
                 $"WeatherDotCom forecast request failed: {(int)response.StatusCode} {response.ReasonPhrase}. Body: {body}");
         }
 
-        var dto = await response.Content.ReadFromJsonAsync<ForecastResponseDto>(JsonOptions, cancellationToken)
+        var totalBytes = response.Content.Headers.ContentLength;
+        _progress.Report(new WeatherLoadProgressUpdate(
+            WeatherLoadPhase.Downloading,
+            "Скачиваем прогноз…",
+            0.12,
+            0,
+            totalBytes));
+
+        await using var raw = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        await using var tracked = new ProgressReportingStream(raw, totalBytes, _progress);
+
+        var dto = await JsonSerializer
+            .DeserializeAsync<ForecastResponseDto>(tracked, JsonOptions, cancellationToken)
             .ConfigureAwait(false);
 
         if (dto is null)
@@ -45,7 +72,23 @@ public sealed class WeatherDotComClient(
             throw new InvalidOperationException("WeatherDotCom returned an empty forecast payload.");
         }
 
-        return WeatherDotComMapper.ToSnapshot(dto, location);
+        _progress.Report(new WeatherLoadProgressUpdate(
+            WeatherLoadPhase.Parsing,
+            "Собираем экран прогноза…",
+            0.97,
+            totalBytes ?? tracked.Position,
+            totalBytes));
+
+        var snapshot = WeatherDotComMapper.ToSnapshot(dto, location);
+
+        _progress.Report(new WeatherLoadProgressUpdate(
+            WeatherLoadPhase.Completed,
+            "Готово",
+            1,
+            totalBytes ?? tracked.Position,
+            totalBytes));
+
+        return snapshot;
     }
 
     private Uri BuildForecastUri(GeoLocation location)

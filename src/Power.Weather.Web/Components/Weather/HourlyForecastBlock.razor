@@ -1,8 +1,10 @@
 @namespace Power.Weather.Web.Components.Weather
 
 <section class="section">
-    <h2 class="section__title">Почасовой прогноз</h2>
-    <p class="section__hint">Оставшиеся часы сегодня и все часы завтра</p>
+    <div class="section__head">
+        <h2 class="section__title">Почасовой прогноз</h2>
+        <p class="section__hint">Сетка 10 часов в ряд · сегодня и завтра</p>
+    </div>
 
     @if (Hours.Count == 0)
     {
@@ -13,19 +15,28 @@
         <div class="hourly-groups">
             @foreach (var group in Groups)
             {
-                <div class="hourly-group hourly-group--@group.CssSuffix">
-                    <h3 class="hourly-group__title">@group.Title</h3>
-                    <div class="hourly" tabindex="0">
+                <div class="hourly-day hourly-day--@group.CssSuffix">
+                    <div class="hourly-day__label" aria-hidden="true">@group.Title</div>
+                    <div class="hourly-day__grid" role="list" aria-label="@group.Title">
                         @foreach (var hour in group.Hours)
                         {
-                            <article class="hourly__item">
-                                <p class="hourly__time">@hour.Time.ToString("HH:mm")</p>
+                            <article class="hourly__item" role="listitem">
+                                <p class="hourly__param">
+                                    <span class="hourly__label">Время</span>
+                                    <span class="hourly__value hourly__value--time">@hour.Time.ToString("HH:mm")</span>
+                                </p>
                                 @if (!string.IsNullOrWhiteSpace(hour.Condition.IconUrl))
                                 {
-                                    <img src="@hour.Condition.IconUrl" alt="@hour.Condition.Text" width="40" height="40" />
+                                    <img src="@hour.Condition.IconUrl" alt="@hour.Condition.Text" width="36" height="36" />
                                 }
-                                <p class="hourly__temp">@hour.TemperatureC.ToString("0")°</p>
-                                <p class="hourly__rain">@hour.ChanceOfRainPercent%</p>
+                                <p class="hourly__param">
+                                    <span class="hourly__label">Температура</span>
+                                    <span class="hourly__value hourly__value--temp">@hour.TemperatureC.ToString("0")°</span>
+                                </p>
+                                <p class="hourly__param">
+                                    <span class="hourly__label">Дождь</span>
+                                    <span class="hourly__value hourly__value--rain">@hour.ChanceOfRainPercent%</span>
+                                </p>
                             </article>
                         }
                     </div>

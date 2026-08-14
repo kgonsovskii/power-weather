@@ -12,7 +12,7 @@ internal static class WeatherDotComMapper
         var location = new GeoLocation(
             response.Location.Lat,
             response.Location.Lon,
-            string.IsNullOrWhiteSpace(response.Location.Name) ? requestedLocation.CityName : response.Location.Name);
+            string.IsNullOrWhiteSpace(requestedLocation.CityName) ? response.Location.Name : requestedLocation.CityName);
 
         var current = new CurrentWeather(
             DateTimeOffset.FromUnixTimeSeconds(response.Current.LastUpdatedEpoch)

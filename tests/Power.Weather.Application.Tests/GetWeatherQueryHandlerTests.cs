@@ -16,7 +16,7 @@ public class GetWeatherQueryHandlerTests
     public async Task ItShouldRequestWeatherForConfiguredLocation()
     {
         var provider = Substitute.For<IWeatherProvider>();
-        provider.GetAsync(Arg.Any<GeoLocation>(), Arg.Any<CancellationToken>())
+        provider.GetAsync(Arg.Any<GeoLocation>(), Arg.Any<bool>(), Arg.Any<CancellationToken>())
             .Returns(EmptySnapshot());
 
         var options = MsOptions.Create(MoscowOptions());
@@ -30,6 +30,7 @@ public class GetWeatherQueryHandlerTests
                 l.CityName == "Москва" &&
                 Math.Abs(l.Latitude - 55.7558) < Tolerance &&
                 Math.Abs(l.Longitude - 37.6173) < Tolerance),
+            false,
             Arg.Any<CancellationToken>());
     }
 
@@ -39,7 +40,7 @@ public class GetWeatherQueryHandlerTests
         var offset = TimeSpan.FromHours(3);
         var condition = new WeatherCondition("Clear", "https://example/a.png", 1000);
         var provider = Substitute.For<IWeatherProvider>();
-        provider.GetAsync(Arg.Any<GeoLocation>(), Arg.Any<CancellationToken>())
+        provider.GetAsync(Arg.Any<GeoLocation>(), Arg.Any<bool>(), Arg.Any<CancellationToken>())
             .Returns(new WeatherSnapshot(
                 new GeoLocation(55.7558, 37.6173, "Москва"),
                 new CurrentWeather(new DateTimeOffset(2024, 1, 15, 15, 0, 0, offset), -5, -8, 10, 70, condition),

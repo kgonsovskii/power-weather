@@ -1,7 +1,10 @@
 @namespace Power.Weather.Web.Components.Weather
 
-<section class="section">
-    <h2 class="section__title">Прогноз на 3 дня</h2>
+<section class="section section--daily">
+    <div class="section__head">
+        <h2 class="section__title">Прогноз на 3 дня</h2>
+        <p class="section__hint">Подбор резины по тренду недели</p>
+    </div>
 
     <div class="daily">
         @foreach (var day in Days)
@@ -13,10 +16,16 @@
                     <img src="@day.Condition.IconUrl" alt="@day.Condition.Text" width="48" height="48" />
                 }
                 <p class="daily__condition">@day.Condition.Text</p>
-                <p class="daily__temps">
-                    <span class="daily__max">@day.MaxTemperatureC.ToString("0")°</span>
-                    <span class="daily__min">@day.MinTemperatureC.ToString("0")°</span>
-                </p>
+                <div class="daily__temps">
+                    <p class="daily__param">
+                        <span>Макс</span>
+                        <span class="daily__max">@day.MaxTemperatureC.ToString("0")°</span>
+                    </p>
+                    <p class="daily__param">
+                        <span>Мин</span>
+                        <span class="daily__min">@day.MinTemperatureC.ToString("0")°</span>
+                    </p>
+                </div>
             </article>
         }
     </div>

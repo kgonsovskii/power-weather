@@ -1,6 +1,8 @@
 using Power.Weather.Application;
+using Power.Weather.Domain.Weather;
 using Power.Weather.Infrastructure;
 using Power.Weather.Web.Components;
+using Power.Weather.Web.Loading;
 
 namespace Power.Weather.Web;
 
@@ -15,6 +17,9 @@ public class Program
 
         builder.Services.AddApplication();
         builder.Services.AddInfrastructure(builder.Configuration);
+
+        builder.Services.AddScoped<WeatherLoadProgressTracker>();
+        builder.Services.AddScoped<IWeatherLoadProgress>(sp => sp.GetRequiredService<WeatherLoadProgressTracker>());
 
         var app = builder.Build();
 

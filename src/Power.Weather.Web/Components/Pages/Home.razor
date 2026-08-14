@@ -1,58 +1,160 @@
 ﻿@page "/"
 @rendermode InteractiveServer
+@implements IDisposable
 @inject IMediator Mediator
+@inject WeatherLoadProgressTracker LoadProgress
 
 <PageTitle>Power Weather — Москва</PageTitle>
 
-<div class="weather-page">
-    <header class="weather-brand">
-        <p class="weather-brand__name">Power Weather</p>
-        <h1 class="weather-brand__city">Москва</h1>
-        <p class="weather-brand__tagline">Текущая погода, почасовой ход и прогноз на три дня</p>
-    </header>
+@if (_isLoading)
+{
+    <div class="tire-loader" role="status" aria-live="polite" aria-busy="true">
+        <div class="tire-loader__dialog">
+            <div class="tire-loader__wheel" aria-hidden="true">
+                <svg class="tire-loader__layer tire-loader__layer--tread" viewBox="0 0 300 300">
+                    <path class="tire-loader__rubber" d="@TruckTireOutline(150, 150, tipRadius: 142, rootRadius: 112, teeth: 18)" />
+                    <circle cx="150" cy="150" r="108" fill="#1a1a1f" />
+                    <circle cx="150" cy="150" r="104" fill="none" stroke="#333" stroke-width="6" />
+                </svg>
 
-    @if (_isLoading)
-    {
-        <div class="weather-state" role="status" aria-live="polite">
-            <div class="weather-spinner" aria-hidden="true"></div>
-            <p>Загружаем прогноз…</p>
+                <svg class="tire-loader__layer tire-loader__layer--rim" viewBox="0 0 300 300">
+                    <circle cx="150" cy="150" r="86" fill="#f2f2ee" />
+                    @for (var i = 0; i < 7; i++)
+                    {
+                        var angle = i * (360.0 / 7);
+                        <path class="tire-loader__spoke"
+                              d="M150 150 C164 124, 182 100, 194 82 C180 76, 164 84, 150 98 C136 84, 120 76, 106 82 C118 100, 136 124, 150 150 Z"
+                              transform="rotate(@angle.ToString(System.Globalization.CultureInfo.InvariantCulture) 150 150)" />
+                    }
+                    <circle cx="150" cy="150" r="38" fill="#111" />
+                    <circle cx="150" cy="150" r="38" fill="none" stroke="#ffe000" stroke-width="3" />
+                    @for (var i = 0; i < 8; i++)
+                    {
+                        var angle = i * 45.0;
+                        <circle class="tire-loader__lugnut"
+                                cx="150" cy="126" r="3.6"
+                                transform="rotate(@angle.ToString(System.Globalization.CultureInfo.InvariantCulture) 150 150)" />
+                    }
+                    <circle class="tire-loader__hub-ball" cx="150" cy="150" r="13" />
+                </svg>
+
+                <svg class="tire-loader__progress" viewBox="0 0 300 300">
+                    <circle class="tire-loader__progress-track" cx="150" cy="150" r="106" />
+                    <circle class="tire-loader__progress-value" cx="150" cy="150" r="106"
+                            style="stroke-dashoffset: @ProgressOffset(LoadProgress.Current.Ratio)" />
+                </svg>
+            </div>
+
+            <div class="tire-loader__caption">
+                <p class="tire-loader__percent">@Percent(LoadProgress.Current.Ratio)%</p>
+                <p class="tire-loader__title">@ShortMessage(LoadProgress.Current)</p>
+                <p class="tire-loader__meta">
+                    @if (LoadProgress.Current.TotalBytes is > 0)
+                    {
+                        <text>@FormatBytes(LoadProgress.Current.BytesReceived) / @FormatBytes(LoadProgress.Current.TotalBytes.Value)</text>
+                    }
+                    else if (LoadProgress.Current.BytesReceived > 0)
+                    {
+                        <text>@FormatBytes(LoadProgress.Current.BytesReceived)</text>
+                    }
+                    else
+                    {
+                        <text>@PhaseLabel(LoadProgress.Current.Phase)</text>
+                    }
+                </p>
+            </div>
         </div>
-    }
-    else if (_error is not null)
-    {
-        <div class="weather-state weather-state--error" role="alert">
-            <p class="weather-state__title">Не удалось получить погоду</p>
-            <p class="weather-state__detail">@_error</p>
-            <button type="button" class="weather-retry" @onclick="LoadAsync">Повторить запрос</button>
+    </div>
+}
+else
+{
+    <div class="weather-page">
+        <div class="weather-shell">
+            <header class="weather-brand">
+                <div class="weather-brand__copy">
+                    <p class="weather-brand__eyebrow">ПОГОДА СВЯЗЬ</p>
+                    <p class="weather-brand__name">Power Weather</p>
+                    <h1 class="weather-brand__city">Москва</h1>
+                    <p class="weather-brand__tagline">
+                        Демо-экран прогноза: выбирай резину под асфальт, дождь и мороз.
+                    </p>
+                    <div class="weather-brand__pills" aria-hidden="true">
+                        <p class="pill pill--fill">Grip check</p>
+                        <p class="pill">Лето / зима</p>
+                        <p class="pill">Москва · Europe/Moscow</p>
+                    </div>
+                </div>
+
+                <button type="button"
+                        class="weather-refresh"
+                        title="Обновить прогноз"
+                        @onclick="RefreshAsync">
+                    <svg class="weather-refresh__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M17.65 6.35A7.95 7.95 0 0 0 12 4V1L7 6l5 5V7c2.76 0 5 2.24 5 5a5 5 0 0 1-8.66 3.42l-1.42 1.42A7 7 0 0 0 19 12c0-1.93-.78-3.68-2.05-4.95zM6 12a5 5 0 0 1 8.66-3.42l1.42-1.42A7 7 0 0 0 5 12c0 1.93.78 3.68 2.05 4.95A7.95 7.95 0 0 0 12 20v3l5-5-5-5v3c-2.76 0-5-2.24-5-5z" />
+                    </svg>
+                    <span>Обновить</span>
+                </button>
+            </header>
+
+            <div class="weather-body">
+                @if (_error is not null)
+                {
+                    <div class="weather-state weather-state--error" role="alert">
+                        <p class="weather-state__title">Не удалось получить погоду</p>
+                        <p class="weather-state__detail">@_error</p>
+                        <button type="button" class="weather-retry" @onclick="RefreshAsync">Повторить запрос</button>
+                    </div>
+                }
+                else if (_weather is not null)
+                {
+                    <CurrentWeatherBlock Weather="_weather" />
+                    <div class="forecast-split">
+                        <HourlyForecastBlock Hours="_weather.Hourly" />
+                        <DailyForecastBlock Days="_weather.Daily" />
+                    </div>
+                }
+            </div>
         </div>
-    }
-    else if (_weather is not null)
-    {
-        <CurrentWeatherBlock Current="_weather.Current" />
-        <HourlyForecastBlock Hours="_weather.Hourly" />
-        <DailyForecastBlock Days="_weather.Daily" />
-    }
-</div>
+    </div>
+}
 
 @code {
+    private static readonly TimeSpan MinLoadingVisible = TimeSpan.FromSeconds(2.5);
+    private const double ProgressCircumference = 2 * Math.PI * 106;
+
     private bool _isLoading = true;
     private string? _error;
     private WeatherSnapshot? _weather;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await LoadAsync();
+        LoadProgress.Changed += OnLoadProgressChanged;
     }
 
-    private async Task LoadAsync()
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync(forceRefresh: true);
+    }
+
+    private Task RefreshAsync() => LoadAsync(forceRefresh: true);
+
+    private void OnLoadProgressChanged()
+        => _ = InvokeAsync(StateHasChanged);
+
+    private async Task LoadAsync(bool forceRefresh)
     {
         _isLoading = true;
         _error = null;
         _weather = null;
+        LoadProgress.Reset();
+        await InvokeAsync(StateHasChanged);
+        await Task.Yield();
+
+        var startedAt = DateTime.UtcNow;
 
         try
         {
-            _weather = await Mediator.Send(new GetWeatherQuery());
+            _weather = await Mediator.Send(new GetWeatherQuery(ForceRefresh: forceRefresh));
         }
         catch (Exception ex)
         {
@@ -60,9 +162,95 @@
                 ? "Произошла неизвестная ошибка."
                 : ex.Message;
         }
-        finally
+
+        var elapsed = DateTime.UtcNow - startedAt;
+        if (elapsed < MinLoadingVisible)
         {
-            _isLoading = false;
+            await Task.Delay(MinLoadingVisible - elapsed);
         }
+
+        _isLoading = false;
+    }
+
+    private static string PhaseLabel(WeatherLoadPhase phase) => phase switch
+    {
+        WeatherLoadPhase.Connecting => "Связь",
+        WeatherLoadPhase.Downloading => "Загрузка",
+        WeatherLoadPhase.Parsing => "Сборка",
+        WeatherLoadPhase.Completed => "Готово",
+        _ => "Старт"
+    };
+
+    private static string ShortMessage(WeatherLoadProgressUpdate update)
+    {
+        if (update.Phase == WeatherLoadPhase.Completed)
+        {
+            return "Готово";
+        }
+
+        return PhaseLabel(update.Phase);
+    }
+
+    private static string TruckTireOutline(double cx, double cy, double tipRadius, double rootRadius, int teeth)
+    {
+        var sb = new System.Text.StringBuilder(teeth * 64);
+        var inv = System.Globalization.CultureInfo.InvariantCulture;
+        var step = Math.PI * 2 / teeth;
+        // Flat-top lug: tip occupies ~55% of sector, valley the rest.
+        const double tipRatio = 0.55;
+
+        for (var i = 0; i < teeth; i++)
+        {
+            var a0 = i * step - Math.PI / 2;
+            var aTipEnd = a0 + step * tipRatio;
+            var a1 = a0 + step;
+
+            Point(cx, cy, tipRadius, a0, out var x0, out var y0);
+            Point(cx, cy, tipRadius, aTipEnd, out var x1, out var y1);
+            Point(cx, cy, rootRadius, aTipEnd, out var x2, out var y2);
+            Point(cx, cy, rootRadius, a1, out var x3, out var y3);
+
+            if (i == 0)
+            {
+                sb.Append(inv, $"M {x0:0.##} {y0:0.##} ");
+            }
+
+            sb.Append(inv, $"L {x1:0.##} {y1:0.##} L {x2:0.##} {y2:0.##} L {x3:0.##} {y3:0.##} ");
+        }
+
+        sb.Append('Z');
+        return sb.ToString();
+    }
+
+    private static void Point(double cx, double cy, double r, double angle, out double x, out double y)
+    {
+        x = cx + Math.Cos(angle) * r;
+        y = cy + Math.Sin(angle) * r;
+    }
+
+    private static int Percent(double ratio)
+        => (int)Math.Round(Math.Clamp(ratio, 0, 1) * 100);
+
+    private static string ProgressOffset(double ratio)
+        => (ProgressCircumference * (1 - Math.Clamp(ratio, 0, 1))).ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+
+    private static string FormatBytes(long bytes)
+    {
+        if (bytes < 1024)
+        {
+            return $"{bytes} B";
+        }
+
+        if (bytes < 1024 * 1024)
+        {
+            return $"{bytes / 1024.0:0.0} KB";
+        }
+
+        return $"{bytes / (1024.0 * 1024.0):0.00} MB";
+    }
+
+    public void Dispose()
+    {
+        LoadProgress.Changed -= OnLoadProgressChanged;
     }
 }

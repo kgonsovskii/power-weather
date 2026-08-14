@@ -32,7 +32,7 @@ public class WeatherDotComClientTests
 
         var snapshot = await client.GetAsync(location);
 
-        Assert.Equal("Moscow", snapshot.Location.CityName);
+        Assert.Equal("Москва", snapshot.Location.CityName);
         Assert.Equal(-5.0, snapshot.Current.TemperatureC);
         Assert.Equal("https://cdn.weatherapi.com/a.png", snapshot.Current.Condition.IconUrl);
         Assert.Equal(3, snapshot.Daily.Count);

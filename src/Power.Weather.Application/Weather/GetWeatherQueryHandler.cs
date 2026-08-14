@@ -17,7 +17,9 @@ public sealed class GetWeatherQueryHandler(
     {
         var options = locationOptions.Value;
         var location = new GeoLocation(options.Latitude, options.Longitude, options.CityName);
-        var snapshot = await weatherProvider.GetAsync(location, cancellationToken).ConfigureAwait(false);
+        var snapshot = await weatherProvider
+            .GetAsync(location, request.ForceRefresh, cancellationToken)
+            .ConfigureAwait(false);
 
         var timeZone = ResolveTimeZone(options.TimeZoneId);
         var localNow = TimeZoneInfo.ConvertTime(timeProvider.GetUtcNow(), timeZone);

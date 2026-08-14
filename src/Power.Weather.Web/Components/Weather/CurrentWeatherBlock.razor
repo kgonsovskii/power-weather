@@ -1,34 +1,51 @@
 @namespace Power.Weather.Web.Components.Weather
 
-<div class="current">
+<section class="current" aria-label="Текущая погода">
+    <aside class="current__when" aria-label="Место и время">
+        <p class="current__when-row">
+            <span class="current__when-label">Город</span>
+            <span class="current__when-value">@Weather.Location.CityName</span>
+        </p>
+        <p class="current__when-row">
+            <span class="current__when-label">Сегодня</span>
+            <span class="current__when-value">@Weather.Current.ObservedAt.ToString("dddd, d MMMM", Ru)</span>
+        </p>
+        <p class="current__when-row">
+            <span class="current__when-label">Время в часах</span>
+            <span class="current__when-value current__when-value--time">@Weather.Current.ObservedAt.ToString("HH:mm")</span>
+        </p>
+    </aside>
+
     <div class="current__main">
-        @if (!string.IsNullOrWhiteSpace(Current.Condition.IconUrl))
+        @if (!string.IsNullOrWhiteSpace(Weather.Current.Condition.IconUrl))
         {
-            <img class="current__icon" src="@Current.Condition.IconUrl" alt="@Current.Condition.Text" width="96" height="96" />
+            <img class="current__icon" src="@Weather.Current.Condition.IconUrl" alt="@Weather.Current.Condition.Text" width="96" height="96" />
         }
         <div>
-            <p class="current__temp">@Current.TemperatureC.ToString("0")°</p>
-            <p class="current__condition">@Current.Condition.Text</p>
-            <p class="current__feels">Ощущается как @Current.FeelsLikeC.ToString("0")°</p>
+            <p class="current__temp">@Weather.Current.TemperatureC.ToString("0")°</p>
+            <p class="current__condition">@Weather.Current.Condition.Text</p>
+            <p class="current__feels">Ощущается как @Weather.Current.FeelsLikeC.ToString("0")°</p>
         </div>
     </div>
     <dl class="current__meta">
         <div>
             <dt>Ветер</dt>
-            <dd>@Current.WindKph.ToString("0") км/ч</dd>
+            <dd>@Weather.Current.WindKph.ToString("0") км/ч</dd>
         </div>
         <div>
             <dt>Влажность</dt>
-            <dd>@Current.HumidityPercent%</dd>
+            <dd>@Weather.Current.HumidityPercent%</dd>
         </div>
         <div>
             <dt>Обновлено</dt>
-            <dd>@Current.ObservedAt.ToString("HH:mm")</dd>
+            <dd>@Weather.Current.ObservedAt.ToString("HH:mm")</dd>
         </div>
     </dl>
-</div>
+</section>
 
 @code {
+    private static readonly System.Globalization.CultureInfo Ru = new("ru-RU");
+
     [Parameter, EditorRequired]
-    public CurrentWeather Current { get; set; } = null!;
+    public WeatherSnapshot Weather { get; set; } = null!;
 }

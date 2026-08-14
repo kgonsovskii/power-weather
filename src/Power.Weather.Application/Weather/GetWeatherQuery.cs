@@ -3,4 +3,4 @@ using Power.Weather.Domain.Weather;
 
 namespace Power.Weather.Application.Weather;
 
-public sealed record GetWeatherQuery : IRequest<WeatherSnapshot>;
+public sealed record GetWeatherQuery(bool ForceRefresh = false) : IRequest<WeatherSnapshot>;

@@ -15,6 +15,7 @@ public static class DependencyInjection
         services.Configure<WeatherCacheOptions>(configuration.GetSection(WeatherCacheOptions.SectionName));
 
         services.AddMemoryCache();
+        services.AddScoped<IWeatherLoadProgress, NullWeatherLoadProgress>();
         services.AddWeatherDotComProvider(configuration);
 
         services.AddTransient<IWeatherProvider>(sp =>

@@ -2,12 +2,15 @@
 
 <dialog id="components-reconnect-modal" data-nosnippet>
     <div class="components-reconnect-container">
+        <p class="reconnect-badge">ПОГОДА СВЯЗЬ</p>
         <div class="components-rejoining-animation" aria-hidden="true">
-            <div></div>
-            <div></div>
+            <div class="reconnect-tire">
+                <span class="reconnect-tire__rim"></span>
+                <span class="reconnect-tire__hub"></span>
+            </div>
         </div>
         <p class="components-reconnect-first-attempt-visible">
-            Переподключение к серверу...
+            Переподключение к серверу…
         </p>
         <p class="components-reconnect-repeated-attempt-visible">
             Не удалось переподключиться… повтор через <span id="components-seconds-to-next-attempt"></span> с.
