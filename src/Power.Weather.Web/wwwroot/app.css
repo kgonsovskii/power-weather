@@ -1,0 +1,344 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Manrope:wght@400;600;700&display=swap");
+
+:root {
+    --ink: #142033;
+    --muted: #5b6b7c;
+    --line: rgba(20, 32, 51, 0.12);
+    --accent: #0f6e8c;
+    --panel: rgba(255, 255, 255, 0.72);
+    --shadow: 0 18px 40px rgba(20, 48, 72, 0.12);
+}
+
+html, body {
+    margin: 0;
+    min-height: 100%;
+    font-family: "Manrope", sans-serif;
+    color: var(--ink);
+    background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(125, 211, 252, 0.55), transparent 60%),
+        radial-gradient(900px 500px at 90% 0%, rgba(56, 189, 248, 0.28), transparent 55%),
+        linear-gradient(165deg, #edf5fb 0%, #d7e8f4 45%, #c5d9e8 100%);
+    background-attachment: fixed;
+}
+
+body {
+    line-height: 1.5;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+h1:focus {
+    outline: none;
+}
+
+.blazor-error-boundary {
+    background: #9f1239;
+    padding: 1rem 1.25rem;
+    color: white;
+}
+
+.blazor-error-boundary::after {
+    content: "An error has occurred.";
+}
+
+#blazor-error-ui {
+    display: none;
+}
+
+.weather-page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 4rem;
+    animation: rise 0.55s ease-out both;
+}
+
+.weather-brand {
+    margin-bottom: 2rem;
+}
+
+.weather-brand__name {
+    margin: 0 0 0.35rem;
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    line-height: 1.05;
+}
+
+.weather-brand__city {
+    margin: 0;
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: clamp(1.35rem, 3vw, 1.75rem);
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.weather-brand__tagline {
+    margin: 0.65rem 0 0;
+    max-width: 28rem;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.45;
+}
+
+.weather-state {
+    display: grid;
+    justify-items: center;
+    gap: 0.85rem;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--muted);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+}
+
+.weather-state__title {
+    margin: 0;
+    color: var(--ink);
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 1.35rem;
+}
+
+.weather-state__detail {
+    margin: 0;
+    max-width: 36rem;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    word-break: break-word;
+}
+
+.weather-state--error .weather-state__title {
+    color: #9f1239;
+}
+
+.weather-retry {
+    margin-top: 0.35rem;
+    border: 0;
+    border-radius: 999px;
+    padding: 0.7rem 1.35rem;
+    background: var(--accent);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.weather-retry:hover {
+    background: #0c5a73;
+    transform: translateY(-1px);
+}
+
+.weather-spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid rgba(15, 110, 140, 0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.current,
+.section {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+    padding: 1.35rem 1.4rem;
+    margin-bottom: 1.15rem;
+    animation: rise 0.6s ease-out both;
+}
+
+.current__main {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.current__icon {
+    flex-shrink: 0;
+}
+
+.current__temp {
+    margin: 0;
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: clamp(3rem, 8vw, 4.5rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    color: var(--ink);
+}
+
+.current__condition,
+.current__feels {
+    margin: 0.25rem 0 0;
+    color: var(--muted);
+}
+
+.current__condition {
+    font-size: 1.1rem;
+    color: var(--ink);
+}
+
+.current__meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 1.25rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+}
+
+.current__meta dt {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.current__meta dd {
+    margin: 0.2rem 0 0;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.section__title {
+    margin: 0;
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 1.25rem;
+    color: var(--ink);
+}
+
+.section__hint,
+.section__empty {
+    margin: 0.35rem 0 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+
+.hourly {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(4.6rem, 1fr);
+    gap: 0.65rem;
+    margin-top: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.35rem;
+    scroll-snap-type: x proximity;
+}
+
+.hourly__item {
+    scroll-snap-align: start;
+    text-align: center;
+    padding: 0.7rem 0.35rem;
+    border-radius: 0.9rem;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--line);
+}
+
+.hourly__time,
+.hourly__temp,
+.hourly__rain {
+    margin: 0;
+}
+
+.hourly__time {
+    font-size: 0.78rem;
+    color: var(--muted);
+}
+
+.hourly__temp {
+    margin-top: 0.25rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.hourly__rain {
+    margin-top: 0.15rem;
+    font-size: 0.75rem;
+    color: var(--accent);
+}
+
+.daily {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+@media (min-width: 720px) {
+    .daily {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.daily__item {
+    display: grid;
+    justify-items: start;
+    gap: 0.35rem;
+    padding: 0.9rem 1rem;
+    border-radius: 0.95rem;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--line);
+}
+
+.daily__date {
+    margin: 0;
+    font-weight: 600;
+    color: var(--ink);
+    text-transform: capitalize;
+}
+
+.daily__condition {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+
+.daily__temps {
+    margin: 0.25rem 0 0;
+    display: flex;
+    gap: 0.65rem;
+    align-items: baseline;
+}
+
+.daily__max {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.daily__min {
+    color: var(--muted);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes rise {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 640px) {
+    .current__meta {
+        grid-template-columns: 1fr;
+    }
+}

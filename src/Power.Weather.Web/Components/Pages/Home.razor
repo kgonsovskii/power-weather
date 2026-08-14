@@ -1,0 +1,68 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@inject IMediator Mediator
+
+<PageTitle>Power Weather — Москва</PageTitle>
+
+<div class="weather-page">
+    <header class="weather-brand">
+        <p class="weather-brand__name">Power Weather</p>
+        <h1 class="weather-brand__city">Москва</h1>
+        <p class="weather-brand__tagline">Текущая погода, почасовой ход и прогноз на три дня</p>
+    </header>
+
+    @if (_isLoading)
+    {
+        <div class="weather-state" role="status" aria-live="polite">
+            <div class="weather-spinner" aria-hidden="true"></div>
+            <p>Загружаем прогноз…</p>
+        </div>
+    }
+    else if (_error is not null)
+    {
+        <div class="weather-state weather-state--error" role="alert">
+            <p class="weather-state__title">Не удалось получить погоду</p>
+            <p class="weather-state__detail">@_error</p>
+            <button type="button" class="weather-retry" @onclick="LoadAsync">Повторить запрос</button>
+        </div>
+    }
+    else if (_weather is not null)
+    {
+        <CurrentWeatherBlock Current="_weather.Current" />
+        <HourlyForecastBlock Hours="_weather.Hourly" />
+        <DailyForecastBlock Days="_weather.Daily" />
+    }
+</div>
+
+@code {
+    private bool _isLoading = true;
+    private string? _error;
+    private WeatherSnapshot? _weather;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _error = null;
+        _weather = null;
+
+        try
+        {
+            _weather = await Mediator.Send(new GetWeatherQuery());
+        }
+        catch (Exception ex)
+        {
+            _error = string.IsNullOrWhiteSpace(ex.Message)
+                ? "Произошла неизвестная ошибка."
+                : ex.Message;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

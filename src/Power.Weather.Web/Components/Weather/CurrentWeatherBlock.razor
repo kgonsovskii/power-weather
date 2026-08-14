@@ -1,0 +1,34 @@
+@namespace Power.Weather.Web.Components.Weather
+
+<div class="current">
+    <div class="current__main">
+        @if (!string.IsNullOrWhiteSpace(Current.Condition.IconUrl))
+        {
+            <img class="current__icon" src="@Current.Condition.IconUrl" alt="@Current.Condition.Text" width="96" height="96" />
+        }
+        <div>
+            <p class="current__temp">@Current.TemperatureC.ToString("0")°</p>
+            <p class="current__condition">@Current.Condition.Text</p>
+            <p class="current__feels">Ощущается как @Current.FeelsLikeC.ToString("0")°</p>
+        </div>
+    </div>
+    <dl class="current__meta">
+        <div>
+            <dt>Ветер</dt>
+            <dd>@Current.WindKph.ToString("0") км/ч</dd>
+        </div>
+        <div>
+            <dt>Влажность</dt>
+            <dd>@Current.HumidityPercent%</dd>
+        </div>
+        <div>
+            <dt>Обновлено</dt>
+            <dd>@Current.ObservedAt.ToString("HH:mm")</dd>
+        </div>
+    </dl>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public CurrentWeather Current { get; set; } = null!;
+}

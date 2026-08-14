@@ -1,0 +1,38 @@
+@namespace Power.Weather.Web.Components.Weather
+
+<section class="section">
+    <h2 class="section__title">Почасовой прогноз</h2>
+    <p class="section__hint">Оставшиеся часы сегодня и все часы завтра</p>
+
+    @if (Hours.Count == 0)
+    {
+        <p class="section__empty">Нет почасовых данных</p>
+    }
+    else
+    {
+        <div class="hourly" tabindex="0">
+            @foreach (var hour in Hours)
+            {
+                <article class="hourly__item">
+                    <p class="hourly__time">@FormatHour(hour.Time)</p>
+                    @if (!string.IsNullOrWhiteSpace(hour.Condition.IconUrl))
+                    {
+                        <img src="@hour.Condition.IconUrl" alt="@hour.Condition.Text" width="40" height="40" />
+                    }
+                    <p class="hourly__temp">@hour.TemperatureC.ToString("0")°</p>
+                    <p class="hourly__rain">@hour.ChanceOfRainPercent%</p>
+                </article>
+            }
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public IReadOnlyList<HourlyForecast> Hours { get; set; } = [];
+
+    private static string FormatHour(DateTimeOffset time)
+        => time.Hour == 0 && time.Minute == 0
+            ? time.ToString("dd.MM HH:mm")
+            : time.ToString("HH:mm");
+}

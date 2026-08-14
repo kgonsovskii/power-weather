@@ -1,0 +1,6 @@
+using MediatR;
+using Power.Weather.Domain.Weather;
+
+namespace Power.Weather.Application.Weather;
+
+public sealed record GetWeatherQuery : IRequest<WeatherSnapshot>;

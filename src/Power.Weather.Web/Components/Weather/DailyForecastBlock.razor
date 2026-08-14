@@ -1,0 +1,30 @@
+@namespace Power.Weather.Web.Components.Weather
+
+<section class="section">
+    <h2 class="section__title">Прогноз на 3 дня</h2>
+
+    <div class="daily">
+        @foreach (var day in Days)
+        {
+            <article class="daily__item">
+                <p class="daily__date">@day.Date.ToString("ddd, d MMM", Ru)</p>
+                @if (!string.IsNullOrWhiteSpace(day.Condition.IconUrl))
+                {
+                    <img src="@day.Condition.IconUrl" alt="@day.Condition.Text" width="48" height="48" />
+                }
+                <p class="daily__condition">@day.Condition.Text</p>
+                <p class="daily__temps">
+                    <span class="daily__max">@day.MaxTemperatureC.ToString("0")°</span>
+                    <span class="daily__min">@day.MinTemperatureC.ToString("0")°</span>
+                </p>
+            </article>
+        }
+    </div>
+</section>
+
+@code {
+    private static readonly System.Globalization.CultureInfo Ru = new("ru-RU");
+
+    [Parameter, EditorRequired]
+    public IReadOnlyList<DailyForecast> Days { get; set; } = [];
+}

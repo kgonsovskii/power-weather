@@ -1,0 +1,55 @@
+{
+  "location": {
+    "name": "Moscow",
+    "lat": 55.75,
+    "lon": 37.62,
+    "localtime_epoch": 1705321200,
+    "tz_id": "UTC"
+  },
+  "current": {
+    "last_updated_epoch": 1705321200,
+    "temp_c": -5.0,
+    "feelslike_c": -8.0,
+    "wind_kph": 12.0,
+    "humidity": 70,
+    "condition": { "text": "Clear", "icon": "//cdn.weatherapi.com/a.png", "code": 1000 }
+  },
+  "forecast": {
+    "forecastday": [
+      {
+        "date": "2024-01-15",
+        "day": {
+          "maxtemp_c": 0.0,
+          "mintemp_c": -10.0,
+          "condition": { "text": "Cloudy", "icon": "//cdn.weatherapi.com/c.png", "code": 1003 }
+        },
+        "hour": [
+          { "time_epoch": 1705317600, "temp_c": -6.0, "chance_of_rain": 0, "condition": { "text": "Clear", "icon": "//cdn.weatherapi.com/a.png", "code": 1000 } },
+          { "time_epoch": 1705321200, "temp_c": -5.0, "chance_of_rain": 10, "condition": { "text": "Clear", "icon": "//cdn.weatherapi.com/a.png", "code": 1000 } },
+          { "time_epoch": 1705324800, "temp_c": -4.0, "chance_of_rain": 20, "condition": { "text": "Clear", "icon": "//cdn.weatherapi.com/a.png", "code": 1000 } }
+        ]
+      },
+      {
+        "date": "2024-01-16",
+        "day": {
+          "maxtemp_c": 1.0,
+          "mintemp_c": -9.0,
+          "condition": { "text": "Snow", "icon": "//cdn.weatherapi.com/s.png", "code": 1210 }
+        },
+        "hour": [
+          { "time_epoch": 1705363200, "temp_c": -7.0, "chance_of_rain": 80, "condition": { "text": "Snow", "icon": "//cdn.weatherapi.com/s.png", "code": 1210 } },
+          { "time_epoch": 1705366800, "temp_c": -6.5, "chance_of_rain": 70, "condition": { "text": "Snow", "icon": "//cdn.weatherapi.com/s.png", "code": 1210 } }
+        ]
+      },
+      {
+        "date": "2024-01-17",
+        "day": {
+          "maxtemp_c": 2.0,
+          "mintemp_c": -8.0,
+          "condition": { "text": "Sunny", "icon": "//cdn.weatherapi.com/u.png", "code": 1000 }
+        },
+        "hour": []
+      }
+    ]
+  }
+}

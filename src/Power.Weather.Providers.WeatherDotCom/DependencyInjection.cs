@@ -1,0 +1,17 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Power.Weather.Domain.Weather;
+
+namespace Power.Weather.Providers.WeatherDotCom;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddWeatherDotComProvider(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.Configure<WeatherDotComOptions>(configuration.GetSection(WeatherDotComOptions.SectionName));
+        services.AddHttpClient<IWeatherProvider, WeatherDotComClient>();
+        return services;
+    }
+}
