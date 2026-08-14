@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
 using Power.Weather.Application.Options;

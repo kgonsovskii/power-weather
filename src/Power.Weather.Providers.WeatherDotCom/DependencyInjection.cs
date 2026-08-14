@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Power.Weather.Domain.Weather;
 
 namespace Power.Weather.Providers.WeatherDotCom;
 

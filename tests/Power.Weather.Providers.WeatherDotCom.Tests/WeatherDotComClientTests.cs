@@ -2,7 +2,6 @@ using System.Net;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Power.Weather.Domain.Weather;
-using Power.Weather.Providers.WeatherDotCom;
 
 namespace Power.Weather.Providers.WeatherDotCom.Tests;
 
