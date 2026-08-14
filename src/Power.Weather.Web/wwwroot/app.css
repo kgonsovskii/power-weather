@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Barlow:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bungee&family=Oswald:wght@400;500;600;700&family=Barlow:wght@400;600;700&display=swap");
 
 :root {
     --asphalt: #1a3a5c;
@@ -190,10 +190,15 @@ h1:focus {
 }
 
 .weather-brand__tagline {
-    margin: 0.75rem 0 0;
-    max-width: 40rem;
-    color: var(--mute);
-    font-size: 1.05rem;
+    margin: 0.85rem 0 0;
+    max-width: 36rem;
+    color: var(--hazard);
+    font-family: "Bungee", cursive;
+    font-size: clamp(1.05rem, 2.4vw, 1.45rem);
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    text-shadow: 2px 2px 0 #111;
+    text-wrap: balance;
 }
 
 .weather-brand__pills {
@@ -295,8 +300,11 @@ h1:focus {
 
 .tire-loader__dialog {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     width: min(30rem, 94vw);
-    height: min(30rem, 94vw);
+    height: auto;
     border-radius: 0;
     background: transparent;
     border: 0;
@@ -305,12 +313,29 @@ h1:focus {
 }
 
 .tire-loader__wheel {
-    position: absolute;
-    left: 50%;
-    top: 40%;
-    width: 92%;
-    height: 92%;
-    transform: translate(-50%, -50%);
+    position: relative;
+    left: auto;
+    top: auto;
+    width: min(22rem, 78vw);
+    height: min(22rem, 78vw);
+    transform: none;
+    flex-shrink: 0;
+}
+
+.tire-loader__caption {
+    position: static;
+    left: auto;
+    top: auto;
+    z-index: 3;
+    width: auto;
+    max-width: 90%;
+    margin-top: 1rem;
+    transform: none;
+    display: grid;
+    justify-items: center;
+    gap: 0.2rem;
+    text-align: center;
+    pointer-events: none;
 }
 
 .tire-loader__layer {
@@ -378,20 +403,6 @@ h1:focus {
     stroke-dasharray: 665.77;
     transition: stroke-dashoffset 0.15s ease-out;
     filter: drop-shadow(0 0 6px rgba(255, 224, 0, 0.55));
-}
-
-.tire-loader__caption {
-    position: absolute;
-    left: 50%;
-    top: 66%;
-    z-index: 3;
-    width: 58%;
-    transform: translateX(-50%);
-    display: grid;
-    justify-items: center;
-    gap: 0.15rem;
-    text-align: center;
-    pointer-events: none;
 }
 
 .tire-loader__percent {

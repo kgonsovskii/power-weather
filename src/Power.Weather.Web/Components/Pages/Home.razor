@@ -1,8 +1,9 @@
 ﻿@page "/"
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @implements IDisposable
 @inject IMediator Mediator
 @inject WeatherLoadProgressTracker LoadProgress
+@inject IJSRuntime Js
 
 <PageTitle>Power Weather — Москва</PageTitle>
 
@@ -76,7 +77,7 @@ else
                     <p class="weather-brand__name">Power Weather</p>
                     <h1 class="weather-brand__city">Москва</h1>
                     <p class="weather-brand__tagline">
-                        Демо-экран прогноза: выбирай резину под асфальт, дождь и мороз.
+                        выбирай резину под асфальт, дождь и мороз.
                     </p>
                     <div class="weather-brand__pills" aria-hidden="true">
                         <p class="pill pill--fill">Grip check</p>
@@ -119,7 +120,7 @@ else
 }
 
 @code {
-    private static readonly TimeSpan MinLoadingVisible = TimeSpan.FromSeconds(2.5);
+    private static readonly TimeSpan MinLoadingVisible = TimeSpan.FromSeconds(3);
     private const double ProgressCircumference = 2 * Math.PI * 106;
 
     private bool _isLoading = true;
@@ -133,13 +134,39 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        // Let Blazor paint the tire-loader first (boot splash stays until .tire-loader exists).
+        await Task.Yield();
         await LoadAsync(forceRefresh: true);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            await Js.InvokeVoidAsync("pwBootHide");
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+        catch (JSException)
+        {
+        }
     }
 
     private Task RefreshAsync() => LoadAsync(forceRefresh: true);
 
     private void OnLoadProgressChanged()
-        => _ = InvokeAsync(StateHasChanged);
+    {
+        if (_isLoading)
+        {
+            _ = InvokeAsync(StateHasChanged);
+        }
+    }
 
     private async Task LoadAsync(bool forceRefresh)
     {
@@ -148,7 +175,6 @@ else
         _weather = null;
         LoadProgress.Reset();
         await InvokeAsync(StateHasChanged);
-        await Task.Yield();
 
         var startedAt = DateTime.UtcNow;
 
@@ -170,6 +196,7 @@ else
         }
 
         _isLoading = false;
+        await InvokeAsync(StateHasChanged);
     }
 
     private static string PhaseLabel(WeatherLoadPhase phase) => phase switch
