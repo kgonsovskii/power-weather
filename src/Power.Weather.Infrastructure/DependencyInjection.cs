@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Power.Weather.Application.Options;
 using Power.Weather.Domain.Weather;
+using Power.Weather.Domain.Weather.Demo;
 using Power.Weather.Infrastructure.Caching;
 using Power.Weather.Providers.WeatherDotCom;
 
@@ -16,6 +17,7 @@ public static class DependencyInjection
 
         services.AddMemoryCache();
         services.AddScoped<IWeatherLoadProgress, NullWeatherLoadProgress>();
+        services.AddScoped<IWeatherApiFaultArm, WeatherApiFaultArm>();
         services.AddWeatherDotComProvider(configuration);
 
         services.AddTransient<IWeatherProvider>(sp =>

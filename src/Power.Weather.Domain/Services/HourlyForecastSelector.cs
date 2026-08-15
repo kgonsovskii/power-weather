@@ -3,7 +3,7 @@ using Power.Weather.Domain.Weather;
 namespace Power.Weather.Domain.Services;
 
 /// <summary>
-/// TZ requirement: remaining hours of the current local day + all hours of the next local day.
+/// Требование по часовому поясу: оставшиеся часы текущего локального дня + все часы следующего локального дня.
 /// </summary>
 public sealed class HourlyForecastSelector : IHourlyForecastSelector
 {

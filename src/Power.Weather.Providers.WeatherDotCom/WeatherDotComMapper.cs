@@ -5,7 +5,10 @@ namespace Power.Weather.Providers.WeatherDotCom;
 
 internal static class WeatherDotComMapper
 {
-    public static WeatherSnapshot ToSnapshot(ForecastResponseDto response, GeoLocation requestedLocation)
+    public static WeatherSnapshot ToSnapshot(
+        ForecastResponseDto response,
+        GeoLocation requestedLocation,
+        int forecastDays)
     {
         var timeZone = ResolveTimeZone(response.Location.TimeZoneId);
 
@@ -22,16 +25,16 @@ internal static class WeatherDotComMapper
             response.Current.WindKph,
             response.Current.Humidity,
             ToCondition(response.Current.Condition));
-
-        // Full hourly series; Application applies "remaining today + all tomorrow" in city time zone.
+        
         var hourly = response.Forecast.ForecastDay
             .SelectMany(day => day.Hour)
             .Select(hour => ToHourly(hour, timeZone))
             .OrderBy(hour => hour.Time)
             .ToList();
 
+        var dayCount = Math.Max(0, forecastDays);
         var daily = response.Forecast.ForecastDay
-            .Take(3)
+            .Take(dayCount)
             .Select(day => new DailyForecast(
                 DateOnly.Parse(day.Date),
                 day.Day.MinTempC,

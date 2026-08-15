@@ -1,7 +1,7 @@
 namespace Power.Weather.Domain.Weather;
 
 /// <summary>
-/// Aggregate for the single weather screen: current, hourly, and 3-day forecast.
+/// Агрегат одного экрана погоды: текущая, почасовая и прогноз на 3 дня.
 /// </summary>
 public sealed record WeatherSnapshot(
     GeoLocation Location,

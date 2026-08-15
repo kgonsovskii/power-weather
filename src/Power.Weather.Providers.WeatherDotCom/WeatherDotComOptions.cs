@@ -9,12 +9,12 @@ public sealed class WeatherDotComOptions
     public int ForecastDays { get; init; } = 3;
 
     /// <summary>
-    /// Language code for condition text (WeatherAPI <c>lang</c>), e.g. ru.
+    /// Код языка текста условий (параметр WeatherAPI <c>lang</c>), например ru.
     /// </summary>
     public string Language { get; init; } = "ru";
 
     /// <summary>
-    /// Named URLs from configuration, e.g. Base / Current / Forecast.
+    /// Именованные URL из конфигурации, например Base / Current / Forecast.
     /// </summary>
     public Dictionary<string, string> Urls { get; init; } = new(StringComparer.OrdinalIgnoreCase);
 

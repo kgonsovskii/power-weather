@@ -3,6 +3,7 @@
 @implements IDisposable
 @inject IMediator Mediator
 @inject WeatherLoadProgressTracker LoadProgress
+@inject IWeatherApiFaultArm ApiFaultArm
 @inject IJSRuntime Js
 
 <PageTitle>Power Weather — Москва</PageTitle>
@@ -46,23 +47,33 @@
                 </svg>
             </div>
 
-            <div class="tire-loader__caption">
+            <div class="tire-loader__panel">
                 <p class="tire-loader__percent">@Percent(LoadProgress.Current.Ratio)%</p>
-                <p class="tire-loader__title">@ShortMessage(LoadProgress.Current)</p>
-                <p class="tire-loader__meta">
-                    @if (LoadProgress.Current.TotalBytes is > 0)
-                    {
-                        <text>@FormatBytes(LoadProgress.Current.BytesReceived) / @FormatBytes(LoadProgress.Current.TotalBytes.Value)</text>
+                <p class="tire-loader__panel-label">Журнал загрузки</p>
+                <ol class="tire-loader__log">
+                    @{
+                        var lines = LoadProgress.Lines;
+                        var lastIndex = lines.Count - 1;
                     }
-                    else if (LoadProgress.Current.BytesReceived > 0)
+                    @for (var i = 0; i < lines.Count; i++)
                     {
-                        <text>@FormatBytes(LoadProgress.Current.BytesReceived)</text>
+                        var line = lines[i];
+                        var isCurrent = i == lastIndex;
+                        <li class="tire-loader__log-row @(isCurrent ? "tire-loader__log-row--current" : "tire-loader__log-row--done")">
+                            <span class="tire-loader__log-mark" aria-hidden="true">@(isCurrent ? "›" : "✓")</span>
+                            <span class="tire-loader__log-text">
+                                <span class="tire-loader__log-message">@line.Message</span>
+                                @{
+                                    var detail = FormatLogDetail(line);
+                                }
+                                @if (detail is not null)
+                                {
+                                    <span class="tire-loader__log-detail">@detail</span>
+                                }
+                            </span>
+                        </li>
                     }
-                    else
-                    {
-                        <text>@PhaseLabel(LoadProgress.Current.Phase)</text>
-                    }
-                </p>
+                </ol>
             </div>
         </div>
     </div>
@@ -86,27 +97,39 @@ else
                     </div>
                 </div>
 
-                <button type="button"
-                        class="weather-refresh"
-                        title="Обновить прогноз"
-                        @onclick="RefreshAsync">
-                    <svg class="weather-refresh__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M17.65 6.35A7.95 7.95 0 0 0 12 4V1L7 6l5 5V7c2.76 0 5 2.24 5 5a5 5 0 0 1-8.66 3.42l-1.42 1.42A7 7 0 0 0 19 12c0-1.93-.78-3.68-2.05-4.95zM6 12a5 5 0 0 1 8.66-3.42l1.42-1.42A7 7 0 0 0 5 12c0 1.93.78 3.68 2.05 4.95A7.95 7.95 0 0 0 12 20v3l5-5-5-5v3c-2.76 0-5-2.24-5-5z" />
-                    </svg>
-                    <span>Обновить</span>
-                </button>
+                <div class="weather-brand__actions">
+                    <button type="button"
+                            class="weather-refresh"
+                            title="Обновить прогноз"
+                            @onclick="RefreshAsync">
+                        <svg class="weather-refresh__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M17.65 6.35A7.95 7.95 0 0 0 12 4V1L7 6l5 5V7c2.76 0 5 2.24 5 5a5 5 0 0 1-8.66 3.42l-1.42 1.42A7 7 0 0 0 19 12c0-1.93-.78-3.68-2.05-4.95zM6 12a5 5 0 0 1 8.66-3.42l1.42-1.42A7 7 0 0 0 5 12c0 1.93.78 3.68 2.05 4.95A7.95 7.95 0 0 0 12 20v3l5-5-5-5v3c-2.76 0-5-2.24-5-5z" />
+                        </svg>
+                        <span>Обновить</span>
+                    </button>
+                    <button type="button"
+                            class="weather-refresh weather-refresh--fault"
+                            title="Обновить с ошибкой API"
+                            @onclick="RefreshWithApiErrorAsync">
+                        <span>Refresh with API error</span>
+                    </button>
+                </div>
             </header>
 
-            <div class="weather-body">
-                @if (_error is not null)
-                {
-                    <div class="weather-state weather-state--error" role="alert">
-                        <p class="weather-state__title">Не удалось получить погоду</p>
-                        <p class="weather-state__detail">@_error</p>
-                        <button type="button" class="weather-retry" @onclick="RefreshAsync">Повторить запрос</button>
+            @if (_error is not null)
+            {
+                <div class="weather-error-banner" role="alert">
+                    <div class="weather-error-banner__copy">
+                        <p class="weather-error-banner__eyebrow">Сбой связи</p>
+                        <p class="weather-error-banner__title">Не удалось получить погоду</p>
+                        <p class="weather-error-banner__detail">@_error</p>
                     </div>
-                }
-                else if (_weather is not null)
+                    <button type="button" class="weather-retry" @onclick="RefreshAsync">Повторить запрос</button>
+                </div>
+            }
+
+            <div class="weather-body">
+                @if (_weather is not null)
                 {
                     <CurrentWeatherBlock Weather="_weather" />
                     <div class="forecast-split">
@@ -134,7 +157,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // Let Blazor paint the tire-loader first (boot splash stays until .tire-loader exists).
+        // Сначала даём Blazor отрисовать tire-loader (boot-splash держится, пока не появится .tire-loader).
         await Task.Yield();
         await LoadAsync(forceRefresh: true);
     }
@@ -160,6 +183,12 @@ else
 
     private Task RefreshAsync() => LoadAsync(forceRefresh: true);
 
+    private Task RefreshWithApiErrorAsync()
+    {
+        ApiFaultArm.ArmNextRequest();
+        return LoadAsync(forceRefresh: true);
+    }
+
     private void OnLoadProgressChanged()
     {
         if (_isLoading)
@@ -184,9 +213,7 @@ else
         }
         catch (Exception ex)
         {
-            _error = string.IsNullOrWhiteSpace(ex.Message)
-                ? "Произошла неизвестная ошибка."
-                : ex.Message;
+            _error = DescribeWeatherError(ex);
         }
 
         var elapsed = DateTime.UtcNow - startedAt;
@@ -199,23 +226,43 @@ else
         await InvokeAsync(StateHasChanged);
     }
 
-    private static string PhaseLabel(WeatherLoadPhase phase) => phase switch
+    private static string DescribeWeatherError(Exception ex)
     {
-        WeatherLoadPhase.Connecting => "Связь",
-        WeatherLoadPhase.Downloading => "Загрузка",
-        WeatherLoadPhase.Parsing => "Сборка",
-        WeatherLoadPhase.Completed => "Готово",
-        _ => "Старт"
-    };
-
-    private static string ShortMessage(WeatherLoadProgressUpdate update)
-    {
-        if (update.Phase == WeatherLoadPhase.Completed)
+        if (ex is HttpRequestException http)
         {
-            return "Готово";
+            var status = http.StatusCode is { } code
+                ? $" HTTP {(int)code}."
+                : string.Empty;
+
+            return $"Сервис погоды не ответил.{status} " +
+                   (string.IsNullOrWhiteSpace(http.Message)
+                       ? "Проверьте соединение и повторите запрос."
+                       : http.Message);
         }
 
-        return PhaseLabel(update.Phase);
+        if (ex is TaskCanceledException or OperationCanceledException)
+        {
+            return "Запрос к сервису погоды был прерван. Повторите попытку.";
+        }
+
+        return string.IsNullOrWhiteSpace(ex.Message)
+            ? "Произошла неизвестная ошибка при загрузке прогноза."
+            : ex.Message;
+    }
+
+    private static string? FormatLogDetail(WeatherLoadLogEntry line)
+    {
+        if (line.TotalBytes is > 0)
+        {
+            return $"{FormatBytes(line.BytesReceived)} / {FormatBytes(line.TotalBytes.Value)}";
+        }
+
+        if (line.BytesReceived > 0)
+        {
+            return FormatBytes(line.BytesReceived);
+        }
+
+        return null;
     }
 
     private static string TruckTireOutline(double cx, double cy, double tipRadius, double rootRadius, int teeth)
@@ -223,7 +270,7 @@ else
         var sb = new System.Text.StringBuilder(teeth * 64);
         var inv = System.Globalization.CultureInfo.InvariantCulture;
         var step = Math.PI * 2 / teeth;
-        // Flat-top lug: tip occupies ~55% of sector, valley the rest.
+        // Плоский шип протектора: вершина ~55% сектора, остальное — впадина.
         const double tipRatio = 0.55;
 
         for (var i = 0; i < teeth; i++)

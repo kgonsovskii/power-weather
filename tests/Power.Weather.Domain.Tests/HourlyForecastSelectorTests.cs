@@ -13,7 +13,7 @@ public class HourlyForecastSelectorTests
     [Fact]
     public void ItShouldKeepRemainingHoursOfTodayAndAllHoursOfTomorrow()
     {
-        // 15:20 Moscow = 12:20 UTC
+        // 15:20 по Москве = 12:20 UTC
         var timeProvider = new FakeTimeProvider(new DateTimeOffset(2024, 1, 15, 12, 20, 0, TimeSpan.Zero));
         var localNow = ToMoscowLocal(timeProvider);
 
@@ -38,7 +38,7 @@ public class HourlyForecastSelectorTests
     [Fact]
     public void ItShouldIncludeCurrentHourEvenWhenLocalNowIsPastTheHourStart()
     {
-        // 10:59 Moscow = 07:59 UTC
+        // 10:59 по Москве = 07:59 UTC
         var timeProvider = new FakeTimeProvider(new DateTimeOffset(2024, 1, 15, 7, 59, 0, TimeSpan.Zero));
         var localNow = ToMoscowLocal(timeProvider);
 

@@ -77,10 +77,12 @@ h1:focus {
     position: relative;
     overflow: hidden;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 1rem 1.5rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
     align-items: start;
     padding: clamp(1.25rem, 3vw, 2.25rem) clamp(1rem, 3vw, 2.5rem) clamp(1.5rem, 3vw, 2rem);
+    /* Keep room for absolutely positioned actions so they don't stretch header height. */
+    padding-right: clamp(11.5rem, 26vw, 17.5rem);
     background:
         linear-gradient(90deg, var(--hazard) 0 12px, transparent 12px),
         linear-gradient(120deg, rgba(10, 40, 80, 0.88) 0%, rgba(20, 70, 140, 0.72) 55%, rgba(255, 122, 24, 0.55) 100%);
@@ -92,25 +94,52 @@ h1:focus {
     min-width: 0;
 }
 
-.weather-refresh {
+.weather-brand__actions {
+    position: absolute;
     z-index: 2;
+    top: clamp(1.25rem, 3vw, 2.25rem);
+    right: clamp(1rem, 3vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.45rem;
+    width: max-content;
+    max-width: min(16rem, 42vw);
+}
+
+.weather-refresh {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.65rem;
-    margin-top: 0.15rem;
-    padding: 1rem 1.35rem;
+    margin-top: 0;
+    padding: 0.85rem 1.15rem;
     border: 4px solid #111;
     background: var(--hazard);
     color: #111;
     font-family: "Oswald", sans-serif;
-    font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+    font-size: clamp(1.05rem, 2vw, 1.45rem);
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     cursor: pointer;
     box-shadow: 6px 6px 0 #111;
     transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.weather-refresh--fault {
+    padding: 0.45rem 0.85rem;
+    background: #ff4d4d;
+    color: #fff;
+    font-size: clamp(0.7rem, 1.3vw, 0.85rem);
+    letter-spacing: 0.06em;
+    box-shadow: 4px 4px 0 #3a0000;
+}
+
+.weather-refresh--fault:hover:not(:disabled) {
+    background: #ff7a7a;
+    color: #111;
+    box-shadow: 7px 7px 0 #3a0000;
 }
 
 .weather-refresh:hover:not(:disabled) {
@@ -227,6 +256,53 @@ h1:focus {
 }
 
 /* —— States —— */
+.weather-error-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.25rem;
+    margin: 0;
+    padding: 0.75rem clamp(1rem, 3vw, 2.5rem);
+    color: #fff7f7;
+    background:
+        radial-gradient(circle at 12% 20%, rgba(255, 180, 180, 0.35), transparent 42%),
+        linear-gradient(105deg, #4a0505 0%, #b01020 42%, #ff3b2f 78%, #7a0a12 100%);
+    border-bottom: 5px solid #ffb3b3;
+    box-shadow: inset 0 -8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.weather-error-banner__copy {
+    min-width: 0;
+    flex: 1 1 16rem;
+}
+
+.weather-error-banner__eyebrow {
+    margin: 0 0 0.25rem;
+    font-family: "Oswald", sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #ffd0d0;
+}
+
+.weather-error-banner__title {
+    margin: 0 0 0.4rem;
+    font-family: "Oswald", sans-serif;
+    font-size: clamp(1.2rem, 2.4vw, 1.65rem);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.weather-error-banner__detail {
+    margin: 0;
+    max-width: 52rem;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: #ffe8e8;
+    word-break: break-word;
+}
+
 .weather-state {
     display: grid;
     justify-items: center;
@@ -264,22 +340,25 @@ h1:focus {
 }
 
 .weather-retry {
-    margin-top: 0.35rem;
-    border: 0;
+    flex: 0 0 auto;
+    margin-top: 0;
+    border: 3px solid #111;
     padding: 0.85rem 1.6rem;
-    background: var(--hazard);
+    background: #fff;
     color: #111;
     font-family: "Oswald", sans-serif;
     font-size: 1rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: transform 0.15s ease, background 0.15s ease;
+    box-shadow: 4px 4px 0 #3a0000;
+    transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .weather-retry:hover {
-    background: #fff;
-    transform: translateY(-2px);
+    background: var(--hazard);
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 #3a0000;
 }
 
 .weather-loading {
@@ -301,9 +380,11 @@ h1:focus {
 .tire-loader__dialog {
     position: relative;
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
-    width: min(30rem, 94vw);
+    gap: clamp(1rem, 3vw, 2rem);
+    width: min(52rem, 96vw);
     height: auto;
     border-radius: 0;
     background: transparent;
@@ -316,26 +397,119 @@ h1:focus {
     position: relative;
     left: auto;
     top: auto;
-    width: min(22rem, 78vw);
-    height: min(22rem, 78vw);
+    width: min(18rem, 70vw);
+    height: min(18rem, 70vw);
     transform: none;
     flex-shrink: 0;
 }
 
-.tire-loader__caption {
-    position: static;
-    left: auto;
-    top: auto;
-    z-index: 3;
-    width: auto;
-    max-width: 90%;
-    margin-top: 1rem;
-    transform: none;
+.tire-loader__panel {
+    flex: 1 1 16rem;
+    width: min(24rem, 92vw);
+    max-width: 24rem;
+    padding: 1rem 1.1rem 1.15rem;
+    background: rgba(8, 10, 16, 0.78);
+    border: 3px solid #111;
+    box-shadow: 8px 8px 0 #111;
+    color: #fff;
+}
+
+.tire-loader__percent {
+    margin: 0 0 0.35rem;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(2.4rem, 8vw, 3.4rem);
+    letter-spacing: 0.04em;
+    line-height: 0.9;
+    color: #ffe000;
+    text-shadow: 3px 3px 0 #000;
+}
+
+.tire-loader__panel-label {
+    margin: 0 0 0.65rem;
+    font-family: "Oswald", sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 224, 0, 0.85);
+}
+
+.tire-loader__log {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: grid;
-    justify-items: center;
-    gap: 0.2rem;
-    text-align: center;
-    pointer-events: none;
+    gap: 0.45rem;
+    max-height: min(14rem, 36vh);
+    overflow-y: auto;
+}
+
+.tire-loader__log-row {
+    display: grid;
+    grid-template-columns: 1.1rem minmax(0, 1fr);
+    gap: 0.45rem;
+    align-items: start;
+    padding: 0.35rem 0.45rem;
+    border-left: 3px solid transparent;
+    animation: tire-log-in 0.22s ease-out;
+}
+
+.tire-loader__log-row--done {
+    color: rgba(255, 255, 255, 0.62);
+    border-left-color: rgba(255, 224, 0, 0.35);
+}
+
+.tire-loader__log-row--current {
+    color: #fff;
+    background: rgba(255, 224, 0, 0.1);
+    border-left-color: #ffe000;
+}
+
+.tire-loader__log-mark {
+    font-family: "Oswald", sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    color: #ffe000;
+}
+
+.tire-loader__log-text {
+    display: grid;
+    gap: 0.12rem;
+    min-width: 0;
+}
+
+.tire-loader__log-message {
+    font-family: "Oswald", sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+.tire-loader__log-detail {
+    font-family: "Barlow", sans-serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+    color: rgba(255, 224, 0, 0.9);
+}
+
+.tire-loader__caption {
+    display: none;
+}
+
+.tire-loader__title,
+.tire-loader__meta {
+    display: none;
+}
+
+@keyframes tire-log-in {
+    from {
+        opacity: 0;
+        transform: translateY(0.35rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .tire-loader__layer {
@@ -403,35 +577,6 @@ h1:focus {
     stroke-dasharray: 665.77;
     transition: stroke-dashoffset 0.15s ease-out;
     filter: drop-shadow(0 0 6px rgba(255, 224, 0, 0.55));
-}
-
-.tire-loader__percent {
-    margin: 0;
-    font-family: "Bebas Neue", sans-serif;
-    font-size: clamp(2.6rem, 10vw, 4rem);
-    letter-spacing: 0.04em;
-    line-height: 0.9;
-    color: #ffe000;
-    text-shadow: 3px 3px 0 #000;
-}
-
-.tire-loader__title {
-    margin: 0;
-    font-family: "Oswald", sans-serif;
-    font-size: clamp(1.05rem, 3.4vw, 1.45rem);
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: #fff;
-}
-
-.tire-loader__meta {
-    margin: 0.1rem 0 0;
-    color: rgba(255, 255, 255, 0.72);
-    font-family: "Oswald", sans-serif;
-    font-size: 0.9rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
 }
 
 @keyframes tire-spin-reverse {
@@ -873,8 +1018,16 @@ h1:focus {
 @media (max-width: 560px) {
     .weather-brand {
         grid-template-columns: 1fr;
+        padding-right: clamp(1rem, 3vw, 2.5rem);
     }
 
+    .weather-brand__actions {
+        position: static;
+        width: 100%;
+        max-width: none;
+    }
+
+    .weather-brand__actions,
     .weather-refresh {
         width: 100%;
     }

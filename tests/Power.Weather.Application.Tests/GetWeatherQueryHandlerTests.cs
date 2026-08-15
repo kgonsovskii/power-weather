@@ -54,7 +54,7 @@ public class GetWeatherQueryHandlerTests
 
         var options = MsOptions.Create(MoscowOptions());
 
-        // 15:30 Moscow = 12:30 UTC
+        // 15:30 по Москве = 12:30 UTC
         var timeProvider = new FakeTimeProvider(new DateTimeOffset(2024, 1, 15, 12, 30, 0, TimeSpan.Zero));
         var handler = new GetWeatherQueryHandler(provider, options, timeProvider, new HourlyForecastSelector());
 

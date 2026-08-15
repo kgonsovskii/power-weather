@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using Power.Weather.Domain.Weather;
+using Power.Weather.Domain.Weather.Demo;
 using Power.Weather.Providers.WeatherDotCom.Contracts;
 
 namespace Power.Weather.Providers.WeatherDotCom;
@@ -8,6 +9,7 @@ namespace Power.Weather.Providers.WeatherDotCom;
 public sealed class WeatherDotComClient(
     HttpClient httpClient,
     IOptions<WeatherDotComOptions> options,
+    IWeatherApiFaultArm apiFaultArm,
     IWeatherLoadProgress? progress = null) : IWeatherProvider
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -18,6 +20,7 @@ public sealed class WeatherDotComClient(
     private readonly HttpClient _httpClient = httpClient;
     private readonly WeatherDotComOptions _options = options.Value;
     private readonly IWeatherLoadProgress _progress = progress ?? NullWeatherLoadProgress.Instance;
+    private readonly IWeatherApiFaultArm _apiFaultArm = apiFaultArm;
 
     public async Task<WeatherSnapshot> GetAsync(
         GeoLocation location,
@@ -32,11 +35,19 @@ public sealed class WeatherDotComClient(
             throw new InvalidOperationException("WeatherDotCom:ApiKey is missing or empty in configuration.");
         }
 
-        var forecastUri = BuildForecastUri(location);
+        // Демо-сбой на один вызов: снимаем «взвод» и подменяем ключ только для этого HTTP-запроса.
+        var forceApiError = _apiFaultArm.ConsumeArmed();
+        var apiKey = forceApiError
+            ? "pw-demo-forced-invalid-key"
+            : _options.ApiKey;
+
+        var forecastUri = BuildForecastUri(location, apiKey);
 
         _progress.Report(new WeatherLoadProgressUpdate(
             WeatherLoadPhase.Connecting,
-            "Подключаемся к сервису погоды…",
+            forceApiError
+                ? "Демо: ломаем ключ API…"
+                : "Подключаемся к сервису погоды…",
             0.05,
             0,
             null));
@@ -49,7 +60,9 @@ public sealed class WeatherDotComClient(
         {
             var body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
             throw new HttpRequestException(
-                $"WeatherDotCom forecast request failed: {(int)response.StatusCode} {response.ReasonPhrase}. Body: {body}");
+                $"WeatherDotCom forecast request failed: {(int)response.StatusCode} {response.ReasonPhrase}. Body: {body}",
+                null,
+                response.StatusCode);
         }
 
         var totalBytes = response.Content.Headers.ContentLength;
@@ -79,7 +92,7 @@ public sealed class WeatherDotComClient(
             totalBytes ?? tracked.Position,
             totalBytes));
 
-        var snapshot = WeatherDotComMapper.ToSnapshot(dto, location);
+        var snapshot = WeatherDotComMapper.ToSnapshot(dto, location, _options.ForecastDays);
 
         _progress.Report(new WeatherLoadProgressUpdate(
             WeatherLoadPhase.Completed,
@@ -91,10 +104,10 @@ public sealed class WeatherDotComClient(
         return snapshot;
     }
 
-    private Uri BuildForecastUri(GeoLocation location)
+    private Uri BuildForecastUri(GeoLocation location, string apiKey)
     {
         var endpoint = _options.GetEndpointUri(WeatherDotComUrlKeys.Forecast);
-        var query = $"key={Uri.EscapeDataString(_options.ApiKey)}" +
+        var query = $"key={Uri.EscapeDataString(apiKey)}" +
                     $"&q={location.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture)}," +
                     $"{location.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture)}" +
                     $"&days={_options.ForecastDays}";

@@ -78,7 +78,7 @@
 
         (function () {
             function maybeHide() {
-                // Only hand off when Blazor loading UI is up — never on prerendered weather-page.
+                // Передаём управление только когда UI загрузки Blazor уже на экране — не на пререндере weather-page.
                 if (document.querySelector('.tire-loader')) {
                     window.pwBootHide();
                     return true;

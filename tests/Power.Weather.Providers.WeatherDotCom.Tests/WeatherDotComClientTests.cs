@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Power.Weather.Domain.Weather;
+using Power.Weather.Domain.Weather.Demo;
 
 namespace Power.Weather.Providers.WeatherDotCom.Tests;
 
@@ -27,7 +28,7 @@ public class WeatherDotComClientTests
             }
         });
 
-        var client = new WeatherDotComClient(httpClient, options);
+        var client = new WeatherDotComClient(httpClient, options, NullWeatherApiFaultArm.Instance);
         var location = new GeoLocation(55.7558, 37.6173, "Москва");
 
         var snapshot = await client.GetAsync(location);
@@ -41,6 +42,36 @@ public class WeatherDotComClientTests
         Assert.Contains("key=test-key", handler.LastRequestUri.Query);
         Assert.Contains("days=3", handler.LastRequestUri.Query);
         Assert.Contains("lang=ru", handler.LastRequestUri.Query);
+    }
+
+    [Fact]
+    public async Task ItShouldUseInvalidApiKeyWhenFaultArmIsConsumed()
+    {
+        var handler = new StubHttpMessageHandler("{}", HttpStatusCode.Unauthorized);
+        var httpClient = new HttpClient(handler);
+        var options = Options.Create(new WeatherDotComOptions
+        {
+            ApiKey = "test-key",
+            ForecastDays = 3,
+            Language = "ru",
+            Urls = new Dictionary<string, string>
+            {
+                [WeatherDotComUrlKeys.Base] = "https://api.weatherapi.com/v1/",
+                [WeatherDotComUrlKeys.Current] = "current.json",
+                [WeatherDotComUrlKeys.Forecast] = "forecast.json"
+            }
+        });
+
+        var arm = new WeatherApiFaultArm();
+        arm.ArmNextRequest();
+        var client = new WeatherDotComClient(httpClient, options, arm);
+        var location = new GeoLocation(55.7558, 37.6173, "Москва");
+
+        var ex = await Assert.ThrowsAsync<HttpRequestException>(() => client.GetAsync(location));
+
+        Assert.Equal(HttpStatusCode.Unauthorized, ex.StatusCode);
+        Assert.Contains("key=pw-demo-forced-invalid-key", handler.LastRequestUri!.Query);
+        Assert.False(arm.ConsumeArmed());
     }
 
     [Fact]
@@ -63,7 +94,9 @@ public class WeatherDotComClientTests
     private static string TestDataPath(string provider, string fileName)
         => Path.Combine(AppContext.BaseDirectory, "TestData", provider, fileName);
 
-    private sealed class StubHttpMessageHandler(string responseJson) : HttpMessageHandler
+    private sealed class StubHttpMessageHandler(
+        string responseJson,
+        HttpStatusCode statusCode = HttpStatusCode.OK) : HttpMessageHandler
     {
         public Uri? LastRequestUri { get; private set; }
 
@@ -72,7 +105,7 @@ public class WeatherDotComClientTests
             CancellationToken cancellationToken)
         {
             LastRequestUri = request.RequestUri;
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            var response = new HttpResponseMessage(statusCode)
             {
                 Content = new StringContent(responseJson, Encoding.UTF8, "application/json")
             };

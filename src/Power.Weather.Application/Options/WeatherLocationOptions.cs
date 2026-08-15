@@ -9,7 +9,7 @@ public sealed class WeatherLocationOptions
     public double Longitude { get; set; }
 
     /// <summary>
-    /// IANA time zone id for the fixed city (e.g. Europe/Moscow). Prefer this over a raw UTC offset.
+    /// IANA-идентификатор часового пояса фиксированного города (например, Europe/Moscow). Предпочтительнее сырого смещения UTC.
     /// </summary>
     public string TimeZoneId { get; set; } = "Europe/Moscow";
 }
