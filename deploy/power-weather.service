@@ -1,0 +1,17 @@
+[Unit]
+Description=Power Weather (Blazor Server)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/power-weather
+ExecStart=/opt/power-weather/Power.Weather.Web
+Restart=always
+RestartSec=5
+KillSignal=SIGINT
+TimeoutStopSec=30
+EnvironmentFile=-/etc/power-weather/power-weather.env
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+
+[Install]
+WantedBy=multi-user.target

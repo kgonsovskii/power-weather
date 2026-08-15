@@ -17,6 +17,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github", "github", "{B2C3D4
 		.github\workflows\ci.yml = .github\workflows\ci.yml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deploy", "deploy", "{C3D4E5F6-A7B8-9012-CDEF-123456789012}"
+	ProjectSection(SolutionItems) = preProject
+		deploy\deploy.bat = deploy\deploy.bat
+		deploy\deploy.ps1 = deploy\deploy.ps1
+		deploy\install.sh = deploy\install.sh
+		deploy\remote-install.sh = deploy\remote-install.sh
+		deploy\power-weather.service = deploy\power-weather.service
+	EndProjectSection
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Power.Weather.Domain", "src\Power.Weather.Domain\Power.Weather.Domain.csproj", "{6DF54999-88E6-48CE-9F3C-E71C70EF0864}"

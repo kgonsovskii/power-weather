@@ -1,0 +1,4 @@
+
+# Shell scripts must keep LF for Linux
+deploy/*.sh text eol=lf
+

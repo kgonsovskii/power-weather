@@ -159,7 +159,7 @@ else
     {
         // Сначала даём Blazor отрисовать tire-loader (boot-splash держится, пока не появится .tire-loader).
         await Task.Yield();
-        await LoadAsync(forceRefresh: true);
+        await LoadAsync(forceRefresh: false);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

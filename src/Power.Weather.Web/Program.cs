@@ -26,7 +26,7 @@ public class Program
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Error", createScopeForErrors: true);
-            app.UseHsts();
+            // HSTS не включаем: в проде сейчас self-signed сертификат
         }
 
         app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
